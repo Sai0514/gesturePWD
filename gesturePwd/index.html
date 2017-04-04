@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="description" content="这是一个移动设备上的手势密码UI组件">
+	<meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+	<meta name="format-detection" content="telephone=no">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="white">
+	<title>Mobile Gesture Password</title>
+	<link rel="stylesheet" type="text/css" href="dist/css/style.min.css">
+</head>
+<body>
+	<div id="wrap">
+		<h2>手势密码</h2>
+		<hr />
+		<div id="box">
+			<canvas id="canvas"></canvas>
+			<p>请输入手势密码</p>
+			<div id="choose">
+				<input type="radio" name="choice" value="setup" checked/><label>设置密码</label>
+				</br>
+				<input type="radio" name="choice" value="vetify"/><label>验证密码</label>
+			</div>
+		</div>
+	</div>
+	
+	<script type="text/javascript" src="dist/js/all.min.js"></script>		
+</body>
+</html>
