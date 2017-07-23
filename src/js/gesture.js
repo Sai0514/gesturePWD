@@ -6,20 +6,18 @@
 */
 
 // 全局获取页面中的canvas画布
-var canvas = document.getElementById('canvas');
+var canvas = $('canvas');
 var ctx = canvas.getContext('2d'); 
 var oP = document.getElementsByTagName("p")[0];
-var oDiv = document.getElementById("choose");
+var oDiv = $("choose");
 var oSetup = oDiv.getElementsByTagName("input")[0];
 var oVerify = oDiv.getElementsByTagName("input")[1];
 
 const n = 3;  //自定义n阶矩阵，本题为: n*n
+window.onload = initDom(n);
 
 // 初始化Dom结构
-var h5LockPWD = function () {
-	this.initDom(n)
-}
-h5LockPWD.prototype.initDom(n){
+function initDom(n){
 	// 当视窗大小超过ipad的大小时，固定设置容器宽度为800。
 	// 当视窗小于800之后，根据设备宽高动态设置画布大小
 	var width = Math.min(800,document.documentElement.clientWidth); 
@@ -34,7 +32,7 @@ h5LockPWD.prototype.initDom(n){
 }
 
 // 初始化画布，实现n阶矩阵
-h5LockPWD.prototype.initCanvas(n){
+function initCanvas(n){
 	arr = [],       // 存储所有的点，即九宫格圆圈
 	lastPoint = [], // 存储绘制过程中触碰的点
 	restPoint = []; // 存储未使用的点，即剩余的点
@@ -57,7 +55,7 @@ h5LockPWD.prototype.initCanvas(n){
 }
 
 // 对n阶矩阵，在画布上画圆
-h5LockPWD.prototype.drawCircle(x,y){
+function drawCircle(x,y){
 	ctx.strokeStyle = '#FFA500';
     ctx.lineWidth = 2;
     ctx.beginPath();
@@ -67,7 +65,7 @@ h5LockPWD.prototype.drawCircle(x,y){
 }
 
 // 当点击圆圈时，圆圈变为实心点
-h5LockPWD.prototype.drawCurCir(x,y){
+function drawCurCir(x,y){
 	ctx.fillStyle = '#FFA500';
     ctx.lineWidth = 2;
     ctx.beginPath();
@@ -77,7 +75,7 @@ h5LockPWD.prototype.drawCurCir(x,y){
 }
 
 // 对画布上的圆进行圆心打点操作
-h5LockPWD.prototype.drawPoint(x,y){
+function drawPoint(x,y){
 	ctx.fillStyle="#FF0000";
 	ctx.beginPath();
 	ctx.arc(x, y, 2, 0, Math.PI*2, true);
@@ -86,7 +84,7 @@ h5LockPWD.prototype.drawPoint(x,y){
 }
 
 // 根据打点圆心位置，绘制密码折线
-h5LockPWD.prototype.drawLine(point,lastPoint){
+function drawLine(point,lastPoint){
 	if(!lastPoint){return;}
 	ctx.beginPath();
 	ctx.lineWidth = 3;
@@ -100,7 +98,7 @@ h5LockPWD.prototype.drawLine(point,lastPoint){
 }
 
 // 获得当前点的位置
-h5LockPWD.prototype.getPosition(e){
+function getPosition(e){
 	// 获取当前对象的top、right、bottom、left、width、height等值。
 	var rect = e.currentTarget.getBoundingClientRect();
 	var po = {
@@ -112,7 +110,7 @@ h5LockPWD.prototype.getPosition(e){
 }
 
 // 随着触摸点的移动，更新触摸点的位置
-h5LockPWD.prototype.updatePosition(point){
+function updatePosition(point){
 	// 清除面板
 	ctx.clearRect(0,0,ctx.canvas.width,ctx.canvas.height);
 	// 重新画圆
@@ -140,7 +138,7 @@ function addEvent(){
 }
 
 // 触摸开始 事件处理程序
-h5LockPWD.prototype.startHandler(e){
+function startHandler(e){
 	// 获取当前触摸点的位置
 	e = EventUtil.getEvent(e);
 	EventUtil.preventDefault(e);
@@ -159,7 +157,7 @@ h5LockPWD.prototype.startHandler(e){
 };
 
 // 触摸点移动 事件处理程序
-h5LockPWD.prototype.moveHandler(e){
+function moveHandler(e){
 	if(touchFlag){
 		// 更新触摸点的位置
 		e = EventUtil.getEvent(e);
@@ -169,7 +167,7 @@ h5LockPWD.prototype.moveHandler(e){
 };
 
 // 触摸结束 事件处理程序
-h5LockPWD.prototype.endHandler(e){
+function endHandler(e){
 	if(touchFlag){
 		touchFlag = false;
 		// 绘图完毕，密码操作
@@ -185,7 +183,7 @@ function removeEvent(){
 }
 
 // 初始化密码，实现设置和验证功能
-h5LockPWD.prototype.initPwd(){
+function initPwd(){
 	// 设置密码
 	if(oSetup.checked==true){
 		setupPwd(lastPoint);
@@ -197,7 +195,7 @@ h5LockPWD.prototype.initPwd(){
 }
 
 // 设置密码功能
-h5LockPWD.prototype.setupPwd(lastPoint){
+function setupPwd(lastPoint){
 	if(lastPoint.length<4){
 		oP.innerHTML = "密码太短，至少需要5个点";
 		setTimeout(function(){
@@ -209,7 +207,7 @@ h5LockPWD.prototype.setupPwd(lastPoint){
 }
 
 // 验证密码功能
-h5LockPWD.prototype.verifyPwd(lastPoint){
+function verifyPwd(lastPoint){
 	if(checkPwd(lastPoint)){
 		oP.innerHTML = "密码正确!"
 	}else{
@@ -221,7 +219,7 @@ h5LockPWD.prototype.verifyPwd(lastPoint){
 }
 
 // 检测是否存入localStorage
-h5LockPWD.prototype.checkStorage(lastPoint){
+function checkStorage(lastPoint){
 	// 若本地localStorage.password不存在，则将当前值存入localStorage
 	if(!window.localStorage.getItem('password')){
 		var pwd = JSON.stringify(lastPoint);
@@ -255,7 +253,7 @@ h5LockPWD.prototype.checkStorage(lastPoint){
 }
 
 // 检查输入的密码与localStorage.password是否相等
-h5LockPWD.prototype.checkPwd(lastPoint){
+function checkPwd(lastPoint){
 	var oldPwd = JSON.parse(window.localStorage.getItem('password'));
 	if(oldPwd.length != lastPoint.length){
 		return false;
@@ -270,14 +268,3 @@ h5LockPWD.prototype.checkPwd(lastPoint){
 		return true;
 	}	
 }
-
-module.exports = new h5LockPWD();
-
-
-
-
-
-
-
-
-
