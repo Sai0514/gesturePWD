@@ -1,14 +1,17 @@
 import babel from 'rollup-plugin-babel';
-
+import uglify from 'rollup-plugin-uglify'
 
 export default {
     input: 'src/js/main.js',
-    format: 'iife',
-    dest: 'dist/js/bundle.js', //等价于 --output，打包目标文件
-    sourceMap: true, //启用sourcemap
+    output: {
+        file: 'dist/js/bundle.js',
+        format: 'iife'
+    },
+    sourceMap: true,
     plugins: [
         babel({
             exclude: 'node_modules/**'
-        })
+        }),
+        uglify()
     ]
-};
+}

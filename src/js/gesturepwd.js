@@ -1,38 +1,24 @@
-/* 
-  功能：UI手势密码组件
-  author: 黎若楠
-  date：2017.03.29
-  modified: 2017.11.19
-*/
-
-import * as $ from './getclass.js';
-import Event from './eventutil.js';
-
+import * as EventUtil from './eventutil.js';
 
 // 全局获取页面中的canvas画布
-const canvas = $('canvas');
+const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
-const oP = document.getElementsByTagName("p")[0];
-const oDiv = $("choose");
-const oSetup = oDiv.getElementsByTagName("input")[0];
-const oVerify = oDiv.getElementsByTagName("input")[1];
-const EventUtil = new Event();
+const oP = document.getElementsByTagName('p')[0];
+const oDiv = document.getElementById('choose');
+const oSetup = oDiv.getElementsByTagName('input')[0];
+const oVerify = oDiv.getElementsByTagName('input')[1];
+
+const params = {
+    arr: [],
+    restPoint: [],
+    lastPoint: [],
+    touchFlag: false
+}
 
 export default class GesturePWD {
     constructor(props) {
-        super(props);
         this.n = props.n || 3;
-        this.initParams();
         this.initDom(this.n);
-
-    }
-
-    initParams() {
-        this.arr = []; // 存储所有的点，即九宫格圆圈
-        this.lastPoint = []; // 存储绘制过程中触碰的点
-        this.restPoint = []; // 存储未使用的点，即剩余的点
-        this.r = 0; // 初始化圆点半径
-        this.touchFlag = false; // 默认未触摸
     }
 
     // 初始化Dom结构
@@ -50,15 +36,24 @@ export default class GesturePWD {
         this.addEvent();
     }
 
+    initParams(props) {
+        this.r = 0;
+        this.arr = [];
+        this.restPoint = [];
+        this.lastPoint = [];
+        this.touchFlag = false;
+    }
+
     // 初始化画布，实现n阶矩阵
     initCanvas(n) {
+        this.initParams();
         // 求canvas的圆圈半径
         this.r = ctx.canvas.width / (2 + 4 * n);
         for (var i = 0; i < n; i++) {
             for (var j = 0; j < n; j++) {
                 var obj = {
-                    x: j * 4 * r + 3 * r,
-                    y: i * 4 * r + 3 * r
+                    x: j * 4 * this.r + 3 * this.r,
+                    y: i * 4 * this.r + 3 * this.r
                 };
                 this.arr.push(obj);
                 this.restPoint.push(obj);
@@ -75,7 +70,7 @@ export default class GesturePWD {
         ctx.strokeStyle = '#FFA500';
         ctx.lineWidth = 2;
         ctx.beginPath();
-        ctx.arc(x, y, r, 0, Math.PI * 2, true);
+        ctx.arc(x, y, this.r, 0, Math.PI * 2, true);
         ctx.closePath();
         ctx.stroke();
     }
@@ -85,7 +80,7 @@ export default class GesturePWD {
         ctx.fillStyle = '#FFA500';
         ctx.lineWidth = 2;
         ctx.beginPath();
-        ctx.arc(x, y, r, 0, Math.PI * 2, true);
+        ctx.arc(x, y, this.r, 0, Math.PI * 2, true);
         ctx.closePath();
         ctx.fill();
     }
@@ -136,7 +131,7 @@ export default class GesturePWD {
         this.drawPoint(this.lastPoint); // 绘制圆心
         this.drawLine(point, this.lastPoint); // 绘制折线
         for (var i = 0; i < this.restPoint.length; i++) {
-            if (Math.abs(point.x - this.restPoint[i].x) < r && Math.abs(point.y - this.restPoint[i].y) < r) {
+            if (Math.abs(point.x - this.restPoint[i].x) < this.r && Math.abs(point.y - this.restPoint[i].y) < this.r) {
                 this.drawPoint(this.restPoint[i].x, this.restPoint[i].y);
                 this.drawCurCir(this.restPoint[i].x, this.restPoint[i].y); // 绘制实心圆
                 this.lastPoint.push(this.restPoint[i]);
@@ -146,57 +141,42 @@ export default class GesturePWD {
         }
     }
 
-
-    // 触摸开始 事件处理程序
-    startHandler(e) {
-        // 获取当前触摸点的位置
-        e = EventUtil.getEvent(e);
-        EventUtil.preventDefault(e);
-        var loc = this.getPosition(e);
-        for (var i = 0; i < this.arr.length; i++) {
-            if (Math.abs(loc.x - this.arr[i].x) < r && Math.abs(loc.y - this.arr[i].y) < this.r) {
-                // 判断起始点是否在圈内部 
-                this.touchFlag = true;
-                this.drawPoint(this.arr[i].x, this.arr[i].y); // 绘制圆心
-                this.drawCurCir(this.arr[i].x, this.arr[i].y); // 绘制实心圆
-                this.lastPoint.push(this.arr[i]);
-                this.restPoint.splice(i, 1);
-                break;
-            }
-        }
-    };
-
-    // 触摸点移动 事件处理程序
-    moveHandler(e) {
-        if (this.touchFlag) {
-            // 更新触摸点的位置
-            e = EventUtil.getEvent(e);
-            EventUtil.preventDefault(e);
-            this.updatePosition(this.getPosition(e));
-        }
-    };
-
-    // 触摸结束 事件处理程序
-    endHandler(e) {
-        if (this.touchFlag) {
-            this.touchFlag = false;
-            // 绘图完毕，密码操作
-            this.initPwd();
-        }
-    };
-
     // 添加触摸事件
     addEvent() {
-        EventUtil.addHandler(canvas, 'touchstart', startHandler);
-        EventUtil.addHandler(canvas, 'touchmove', moveHandler);
-        EventUtil.addHandler(canvas, 'touchend', endHandler);
-    }
+        // 触摸开始
+        EventUtil.addHandler(canvas, 'touchstart', (e) => {
+            e = EventUtil.getEvent(e);
+            let loc = this.getPosition(e);
+            for (var i = 0; i < this.arr.length; i++) {
+                if (Math.abs(loc.x - this.arr[i].x) < this.r && Math.abs(loc.y - this.arr[i].y) < this.r) {
+                    // 判断起始点是否在圈内部 
+                    this.touchFlag = true;
+                    this.drawPoint(this.arr[i].x, this.arr[i].y); // 绘制圆心
+                    this.drawCurCir(this.arr[i].x, this.arr[i].y); // 绘制实心圆
+                    this.lastPoint.push(this.arr[i]);
+                    this.restPoint.splice(i, 1);
+                    break;
+                }
+            }
+        });
+        // 触摸点移动
+        EventUtil.addHandler(canvas, 'touchmove', (e) => {
+            if (this.touchFlag) {
+                // 更新触摸点的位置
+                e = EventUtil.getEvent(e);
+                EventUtil.preventDefault(e);
+                this.updatePosition(this.getPosition(e));
+            }
 
-    // 移除触摸事件
-    removeEvent() {
-        EventUtil.removeHandler(canvas, 'touchstart', startHandler);
-        EventUtil.removeHandler(canvas, 'touchmove', moveHandler);
-        EventUtil.removeHandler(canvas, 'touchend', endHandler);
+        });
+        // 触摸结束
+        EventUtil.addHandler(canvas, 'touchend', (e) => {
+            if (this.touchFlag) {
+                this.touchFlag = false;
+                // 绘图完毕，密码操作
+                this.initPwd();
+            }
+        });
     }
 
     // 初始化密码，实现设置和验证功能
@@ -216,7 +196,7 @@ export default class GesturePWD {
         if (lastPoint.length <= 4) {
             oP.innerHTML = "密码太短，至少需要5个点";
             setTimeout(() => {
-                this.initCanvas(n);
+                this.initCanvas(this.n);
             }, 1000);
         } else {
             this.checkStorage(lastPoint);
@@ -230,7 +210,7 @@ export default class GesturePWD {
         } else {
             oP.innerHTML = "输入的密码不正确";
             setTimeout(() => {
-                this.initCanvas(n);
+                this.initCanvas(this.n);
             }, 1000);
         }
     }
@@ -242,7 +222,7 @@ export default class GesturePWD {
             var pwd = JSON.stringify(lastPoint);
             window.localStorage.setItem('password', pwd);
             setTimeout(() => {
-                this.initCanvas(n);
+                this.initCanvas(this.n);
                 oP.innerHTML = "请再次输入手势密码";
             }, 1000);
         } else {
@@ -253,7 +233,7 @@ export default class GesturePWD {
             if (this.checkPwd(lastPoint)) {
                 oP.innerHTML = "密码设置成功";
                 setTimeout(() => {
-                    this.initCanvas(n);
+                    this.initCanvas(this.n);
                     oVerify.setAttribute('checked', true);
                 }, 1000);
             } else {
@@ -261,7 +241,7 @@ export default class GesturePWD {
                 // 若两次密码设置不一致，则重置密码，更新localStorage
                 window.localStorage.setItem('password', "");
                 setTimeout(() => {
-                    this.initCanvas(n);
+                    this.initCanvas(this.n);
                     // 重置，提示重新输入密码
                     oP.innerHTML = "请重新输入手势密码";
                 }, 1000);

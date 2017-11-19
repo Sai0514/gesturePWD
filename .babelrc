@@ -1,11 +1,9 @@
 //.babelrc
 {
     "presets": [
-        ["latest", {
-            "es2015": {
-                "modules": false
-            }
-        }]
+        "es2015-rollup"
     ],
-    "plugins": ["external-helpers"]
+    "plugins": [
+        "external-helpers"
+    ]
 }
