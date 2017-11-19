@@ -1,5 +1,4 @@
 //事件封装
-
 export function addHandler(element, type, handler) {
     if (element.addEventListener) {
         element.addEventListener(type, handler, false);

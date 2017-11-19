@@ -4,7 +4,7 @@ import uglify from 'rollup-plugin-uglify'
 export default {
     input: 'src/js/main.js',
     output: {
-        file: 'dist/js/bundle.js',
+        file: 'dist/js/bundle.min.js',
         format: 'iife'
     },
     sourceMap: true,
