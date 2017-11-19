@@ -14,6 +14,7 @@
 	- 其次，若输入的密码是正确的，则提示密码正确！
 
 ### 使用方法：
-	访问：http:liruonan.tech/360star
+	访问：http://liruonan.tech/gesturePWD/
 	开启谷歌浏览器，打开手机调试模式
 	选择合适的手机进行测试。手动刷新
+    
